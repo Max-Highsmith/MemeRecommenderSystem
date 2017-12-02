@@ -6,6 +6,7 @@ import scipy.stats as st
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import webbrowser
+from sklearn.manifold import TSNE
 
 df = pd.read_csv('MemeData.csv', sep=',', header=None)
 memeData= df.as_matrix()
@@ -14,6 +15,50 @@ urlList = memeData[2:numOfObservations, 0];
 nominalMemeData = memeData[2:numOfObservations, 2:22];
 [numOfObs, numOfComponents] = nominalMemeData.shape
 
+
+#T-SNE dimensionality reduction
+
+numOfTSNEDim =3;
+ts_embeddedData = TSNE(n_components=3).fit_transform(nominalMemeData);
+
+fig = plt.figure();
+ax  = fig.add_subplot(111, projection='3d');
+ax.set_title("T-SNE reduced data");
+
+xs = ts_embeddedData[:,0];
+ys = ts_embeddedData[:,1];
+zs = ts_embeddedData[:,2];
+line = ax.scatter(xs,ys,zs, picker=5);
+
+ax.set_xlabel('X axis');
+ax.set_ylabel('Y axis');
+ax.set_zlabel('Z axis');
+
+
+
+
+def onpick(event):
+    print("something happened");
+    thisline = event.artist;
+  #  xdata    = thisline.get_xdata();
+   # ydata    = thisline.get_ydata();
+ #   zdata    = thisline.get_zdata();
+    #points = tuple(zip(xdata[ind], ydata[ind]))
+    ind      = event.ind
+    print(ind);
+    print(urlList[ind[0]]);
+    webbrowser.open(urlList[ind[0]]);
+   # print("you picked", ind);
+
+fig.canvas.mpl_connect('pick_event', onpick);
+
+plt.show()
+
+
+
+
+
+# PCA dimensionality reduction
 numOfRedComp =3;
 pca = PCA(n_components =numOfRedComp)
 reducedMemeData = pca.fit_transform(nominalMemeData);
@@ -37,20 +82,20 @@ ax.set_xlabel('X axis');
 ax.set_ylabel('Y axis');
 ax.set_zlabel('Z axis');
 
-def onpick(event):
-    print("something happened");
-    thisline = event.artist;
+#def onpick(event):
+ #   print("something happened");
+ #   thisline = event.artist;
   #  xdata    = thisline.get_xdata();
    # ydata    = thisline.get_ydata();
  #   zdata    = thisline.get_zdata();
     #points = tuple(zip(xdata[ind], ydata[ind]))
-    ind      = event.ind
-    print(ind);
-    print(urlList[ind[0]]);
-    webbrowser.open(urlList[ind[0]]);
+ #   ind      = event.ind
+ #   print(ind);
+ #   print(urlList[ind[0]]);
+ #   webbrowser.open(urlList[ind[0]]);
    # print("you picked", ind);
 
-fig.canvas.mpl_connect('pick_event', onpick);
+#fig.canvas.mpl_connect('pick_event', onpick);
  
 
 plt.show();
