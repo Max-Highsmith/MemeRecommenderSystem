@@ -237,8 +237,9 @@ for i in range(0, 4):
     history.append([indexer, like])
     if like == "yes" or like == "Yes":
         friends = userLikes(buildUsers, indexer)
+        bestfriends = unionFriends(bestfriends, friends, history)
         stuff = weightedFriendChoice(
-            unionFriends(bestfriends, friends, history),
+            bestfriends,
             createOptions(friends, picks, memeBaseData)        
         )
         url = stuff[0]
@@ -252,8 +253,9 @@ for i in range(0, 4):
     else:
         #do other stuff
         friends = userHates(buildUsers, indexer)
+        bestfriends = unionFriends(bestfriends, friends, history)
         stuff = weightedFriendChoice(
-            unionFriends(bestfriends, friends, history),
+            bestfriends,
             createOptions(friends, picks, memeBaseData)        
         )
         url = stuff[0]
