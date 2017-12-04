@@ -1,4 +1,6 @@
+from sklearn.mixture import GaussianMixture;
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import math
 from sklearn.decomposition import PCA
@@ -16,9 +18,19 @@ dMIndex                = np.arange(numOfMemes);
 cMIndex                = dMIndex[dirtyMemeMatrix[:,0]>1];
 memeMatrix             = dirtyMemeMatrix[dirtyMemeMatrix[:,0]>1];
 numCM, numCU           = memeMatrix.shape;
-memeApproval           = memeMatrix[:,0:2];
-memePriors             = memeApproval[:,0]/memeApproval[:,1];
+memeApproval           = dirtyMemeMatrix[:,0:2];
+memePriors = np.copy(memeApproval[:,0]);
+for i in range(0,memeApproval[:,0].size):
+    if (memeApproval[i,1]!=0):
+        memePriors[i]     = np.nan_to_num(memeApproval[i,0])/np.nan_to_num(memeApproval[i,1]);
+    else:
+        memePriors[i]     = 0;
 
+
+
+userPriors     = np.nanmean(memeMatrix[:,3:numOfUsers], axis=1);
+print(np.mean(np.nan_to_num(memePriors)));
+print(np.mean(userPriors));
 
 #plot priors
 fig = plt.figure();
@@ -106,6 +118,53 @@ print("f1");
 f1 = 2* (precision*recall)/(precision+recall);
 print(f1);
 
+#Content based
+numOfRedComp=3
+pca = PCA(n_components = numOfRedComp);
+reducedUserData = pca.fit_transform(TrainData);
+
+fig = plt.figure();
+ax = fig.add_subplot(111, projection='3d');
+ax.set_title("PCA reduced Memes with User Features");
+xs = reducedUserData[:,0];
+ys = reducedUserData[:,1];
+zs = reducedUserData[:,2];
+
+NumOfGMM =5;
+estimator = GaussianMixture(n_components=NumOfGMM);
+estimator.fit(reducedUserData);
+color = estimator.predict(reducedUserData);
+print("bic boy");
+print(estimator.bic(reducedUserData));
+
+numOfRedComp=3
+pca = PCA(n_components = numOfRedComp);
+reducedUserData = pca.fit_transform(np.transpose(TrainData));
+
+ax.scatter(xs,ys,zs, c=color);
+plt.show();
+
+
+fig = plt.figure();
+ax = fig.add_subplot(111, projection='3d');
+ax.set_title("PCA reduced Users with Meme features");
+xs = reducedUserData[:,0];
+ys = reducedUserData[:,1];
+zs = reducedUserData[:,2];
+ax.scatter(xs,ys,zs);
+
+NumOfGMM =2;
+estimator = GaussianMixture(n_components=NumOfGMM);
+estimator.fit(reducedUserData);
+color = estimator.predict(reducedUserData);
+print("bic boy");
+print(estimator.bic(reducedUserData));
+
+ax.scatter(xs,ys,zs, c=color);
+
+plt.show();
+
+
 
 
 
@@ -157,3 +216,6 @@ print(rec);
 print("f1");
 f1 = 2* (pres*rec)/(pres+rec);
 print(f1);
+
+
+#User data viz
